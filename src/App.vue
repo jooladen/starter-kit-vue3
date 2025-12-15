@@ -1,13 +1,20 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+
+function hello() {
+  alert('Vuetify 정상 작동!')
+}
 </script>
 
 <template>
   <header>
     <div class="text-3xl font-bold underline">
-    Hello world!
-  </div>
+      Hello world!
+    </div>
+    <v-btn color="primary" @click="hello">
+      Vuetify 3 + Vite + Vue 3 + JS 샘플
+    </v-btn>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
