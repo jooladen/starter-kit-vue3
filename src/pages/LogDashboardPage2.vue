@@ -109,7 +109,7 @@ function simulate() {
     const okStreak = newState === 'OK' ? s.okStreak + 1 : 0
 
     // 🎉 OK 연속 5번이면 자동 폭죽
-    if (okStreak === 2) {
+    if (okStreak === 3) {
       fire()
     }
 
@@ -167,7 +167,7 @@ onUnmounted(() => {
         <p class="text-sm">에러율: {{ s.errorRate }} %</p>
       </div>
     </div>
-    <div class="bg-red-500 text-white px-2 py-1 rounded text-sm ml-2 mr-4">정상(OK) 2번 연속이면 폭죽</div>
+    <span class="bg-red-500 text-white px-2 py-1 rounded text-sm ml-2 mr-4">정상(OK) 3번 연속이면 폭죽</span>
     <v-btn
       @click="simulate"
       prepend-icon="mdi-refresh"
