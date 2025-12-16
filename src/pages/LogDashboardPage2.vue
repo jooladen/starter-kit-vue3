@@ -141,8 +141,8 @@ onUnmounted(() => {
   <div class="font-sans p-4 sm:p-6 md:p-8 max-w-full md:max-w-3xl mx-auto">
     <h1 class="text-2xl md:text-3xl mb-3">
       📡 Project Pulse
-      <span class="bg-red-500 text-white px-2 py-1 rounded text-sm ml-4">정상(OK) 2번 연속이면 폭죽</span>
     </h1>
+    
 
     <div class="text-base md:text-lg mb-5">
       🟢 정상 {{ summary.OK }}
@@ -167,7 +167,7 @@ onUnmounted(() => {
         <p class="text-sm">에러율: {{ s.errorRate }} %</p>
       </div>
     </div>
-
+    <div class="bg-red-500 text-white px-2 py-1 rounded text-sm ml-2 mr-4">정상(OK) 2번 연속이면 폭죽</div>
     <v-btn
       @click="simulate"
       prepend-icon="mdi-refresh"
