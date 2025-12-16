@@ -90,92 +90,55 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="container">
-    
-      <h1>📡 Project Pulse</h1>
-  
-    <div class="summary">
+  <div class="font-sans p-4 sm:p-6 md:p-8 max-w-full md:max-w-3xl mx-auto">
+    <h1 class="text-2xl md:text-3xl mb-3">📡 Project Pulse</h1>
+
+    <div class="text-base md:text-lg mb-5">
       🟢 정상 {{ summary.OK }}
       🟡 주의 {{ summary.WARN }}
       🔴 위험 {{ summary.ERROR }}
     </div>
 
-    <div class="cards">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
       <div
         v-for="s in services"
         :key="s.name"
-        class="card"
-        :class="getStatus(s).toLowerCase()"
+        class="p-4 rounded-xl text-gray-800 bg-gray-50 shadow-md"
+        :class="{
+          'border-l-8 border-green-500': getStatus(s) === 'OK',
+          'border-l-8 border-yellow-500': getStatus(s) === 'WARN',
+          'border-l-8 border-red-500': getStatus(s) === 'ERROR'
+        }"
       >
-        <h3>{{ s.name }}</h3>
-        <p class="status">{{ getStatus(s) }}</p>
-        <p>응답속도: {{ s.latency }} ms</p>
-        <p>에러율: {{ s.errorRate }} %</p>
+        <h3 class="text-lg font-semibold">{{ s.name }}</h3>
+        <p class="font-bold my-2">{{ getStatus(s) }}</p>
+        <p class="text-sm">응답속도: {{ s.latency }} ms</p>
+        <p class="text-sm">에러율: {{ s.errorRate }} %</p>
       </div>
     </div>
 
-    <button class="mx-6" @click="simulate">상태 변화 시뮬레이션</button>
-    <button @click="fire">박수 짝짝짝</button>
+    <v-btn
+      @click="simulate"
+      prepend-icon="mdi-refresh"
+      class="btn-gradient-dark mx-2 sm:mx-6"
+      elevation="2"
+      rounded="lg"
+    >
+      상태 변화 시뮬레이션
+    </v-btn>
+    <v-btn
+      @click="fire"
+      prepend-icon="mdi-party-popper"
+      class="btn-gradient-dark btn-pulse"
+      elevation="2"
+      rounded="lg"
+    >
+      박수 짝짝짝
+    </v-btn>
   </div>
 </template>
 
 <style scoped>
-.container {
-  font-family: system-ui, sans-serif;
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
-}
-
-h1 {
-  margin-bottom: 10px;
-}
-
-.summary {
-  font-size: 18px;
-  margin-bottom: 20px;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.card {
-  padding: 16px;
-  border-radius: 12px;
-  color: #222;
-  background: #f5f5f5;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-}
-
-.card.ok {
-  border-left: 8px solid #3cb371;
-}
-
-.card.warn {
-  border-left: 8px solid #f0ad4e;
-}
-
-.card.error {
-  border-left: 8px solid #d9534f;
-}
-
-.status {
-  font-weight: bold;
-  margin: 8px 0;
-}
-
-button {
-  padding: 10px 16px;
-  font-size: 14px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #222;
-  color: white;
-}
+/* 모든 스타일을 Tailwind로 전환 */
 </style>
 

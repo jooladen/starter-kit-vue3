@@ -12,14 +12,19 @@
       error.value = ''
       try {
         const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
-        posts.value = await response.json()
+        const data = await response.json()
+        posts.value = data.map(post => ({
+          ...post,
+          loadingUpdate: false,
+          loadingDelete: false
+        }))
       } catch (e) {
         error.value = 'GET 실패: ' + e.message
       }
       loading.value = false
     }
     
-    // POST 요청  
+    // POST 요청
     const createPost = async () => {
       loading.value = true
       error.value = ''
@@ -27,14 +32,18 @@
         const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            title: newTitle.value, 
-            body: '테스트 내용입니다', 
-            userId: 1 
+          body: JSON.stringify({
+            title: newTitle.value,
+            body: '테스트 내용입니다',
+            userId: 1
           })
         })
         const data = await response.json()
-        posts.value.unshift(data)
+        posts.value.unshift({
+          ...data,
+          loadingUpdate: false,
+          loadingDelete: false
+        })
         newTitle.value = ''
         alert('생성됨! ID: ' + data.id)
       } catch (e) {
@@ -45,6 +54,9 @@
     
     // PUT 요청
     const updatePost = async (id) => {
+      const post = posts.value.find(p => p.id === id)
+      if (post) post.loadingUpdate = true
+
       try {
         const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, {
           method: 'PUT',
@@ -53,109 +65,149 @@
         })
         const data = await response.json()
         const index = posts.value.findIndex(p => p.id === id)
-        if (index !== -1) posts.value[index] = data
+        if (index !== -1) {
+          posts.value[index] = { ...data, loadingUpdate: false, loadingDelete: false }
+        }
         alert('수정됨!')
       } catch (e) {
         error.value = 'PUT 실패: ' + e.message
+      } finally {
+        if (post) post.loadingUpdate = false
       }
     }
     
     // DELETE 요청
     const deletePost = async (id) => {
+      const post = posts.value.find(p => p.id === id)
+      if (post) post.loadingDelete = true
+
       try {
-        await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, { 
-          method: 'DELETE' 
+        await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, {
+          method: 'DELETE'
         })
         posts.value = posts.value.filter(p => p.id !== id)
         alert('삭제됨!')
       } catch (e) {
         error.value = 'DELETE 실패: ' + e.message
+      } finally {
+        if (post) post.loadingDelete = false
       }
     }
     </script>
     
-    <template>
-      <div style="padding: 20px; max-width: 700px; margin: 0 auto; font-family: system-ui;">
-        <h1 style="color: #42b983;">🚀 Fetch API 테스트</h1>
-        
-        <div v-if="error" style="background: #fee; padding: 10px; border-radius: 5px; color: red; margin-bottom: 15px;">
-          {{ error }}
-        </div>
-        
-        <!-- GET 버튼 -->
-        <div style="margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 8px;">
-          <button 
-            @click="getPosts" 
-            :disabled="loading"
-            style="padding: 10px 20px; background: #42b983; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;"
-          >
-            📥 GET - 게시글 가져오기
-          </button>
-          <span v-if="loading" style="margin-left: 10px; color: #42b983;">⏳ 로딩중...</span>
-        </div>
-        
-        <!-- POST 입력 -->
-        <div style="margin: 20px 0; padding: 15px; background: #f0f8ff; border-radius: 8px;">
-          <h3 style="margin-top: 0;">➕ POST - 새 게시글 추가</h3>
-          <input 
-            v-model="newTitle" 
-            placeholder="제목 입력하세요" 
-            style="padding: 10px; width: 300px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-            @keyup.enter="createPost"
-          >
-          <button 
-            @click="createPost" 
-            :disabled="!newTitle || loading"
-            style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; font-size: 14px;"
-          >
-            추가하기
-          </button>
-        </div>
-        
-        <!-- 게시글 목록 -->
-        <div style="margin-top: 20px;">
-          <h3>📋 게시글 목록 ({{ posts.length }}개)</h3>
-          <div 
-            v-for="post in posts" 
-            :key="post.id" 
-            style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-          >
-            <h3 style="margin: 0 0 8px 0; color: #333;">
-              {{ post.title }}
-              <span style="color: #999; font-size: 14px; font-weight: normal;">(ID: {{ post.id }})</span>
-            </h3>
-            <p style="color: #666; margin: 0 0 12px 0; line-height: 1.5;">{{ post.body }}</p>
-            <div style="display: flex; gap: 8px;">
-              <button 
-                @click="updatePost(post.id)"
-                style="padding: 6px 12px; background: #FF9800; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;"
-              >
-                ✏️ PUT 수정
-              </button>
-              <button 
-                @click="deletePost(post.id)"
-                style="padding: 6px 12px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;"
-              >
-                🗑️ DELETE 삭제
-              </button>
-            </div>
+<template>
+  <div class="p-4 sm:p-6 max-w-full md:max-w-2xl mx-auto font-sans">
+    <h1 class="text-2xl md:text-3xl text-emerald-500">🚀 Fetch API 테스트</h1>
+
+    <div
+      v-if="error"
+      class="bg-red-50 p-3 rounded-md text-red-600 mb-4 text-sm"
+    >
+      {{ error }}
+    </div>
+
+    <!-- GET 버튼 -->
+    <div class="my-5 p-4 bg-gray-100 rounded-lg">
+      <v-btn
+        @click="getPosts"
+        :disabled="loading"
+        :loading="loading"
+        prepend-icon="mdi-download"
+        class="btn-gradient-success"
+        size="large"
+        elevation="3"
+        rounded="lg"
+      >
+        GET - 게시글 가져오기
+      </v-btn>
+    </div>
+
+    <!-- POST 입력 -->
+    <div class="my-5 p-4 bg-blue-50 rounded-lg">
+      <h3 class="mt-0 mb-3 text-lg">➕ POST - 새 게시글 추가</h3>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input
+          v-model="newTitle"
+          placeholder="제목 입력하세요"
+          class="px-3 py-2.5 flex-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          @keyup.enter="createPost"
+        >
+        <v-btn
+          @click="createPost"
+          :disabled="!newTitle || loading"
+          :loading="loading"
+          prepend-icon="mdi-plus-circle"
+          class="btn-gradient-success"
+          elevation="2"
+          rounded="lg"
+        >
+          추가하기
+        </v-btn>
+      </div>
+    </div>
+
+    <!-- 게시글 목록 -->
+    <div class="mt-5">
+      <h3 class="text-lg md:text-xl mb-3">📋 게시글 목록 ({{ posts.length }}개)</h3>
+
+      <div class="overflow-x-auto">
+        <div
+          v-for="post in posts"
+          :key="post.id"
+          class="border border-gray-300 p-4 my-2.5 rounded-lg bg-white shadow-sm min-w-[300px]"
+        >
+          <h3 class="m-0 mb-2 text-gray-800">
+            {{ post.title }}
+            <span class="text-gray-400 text-sm font-normal">(ID: {{ post.id }})</span>
+          </h3>
+          <p class="text-gray-600 m-0 mb-3 leading-relaxed text-sm">{{ post.body }}</p>
+          <div class="flex flex-wrap gap-2">
+            <v-btn
+              @click="updatePost(post.id)"
+              prepend-icon="mdi-pencil-box"
+              class="btn-gradient-info"
+              size="small"
+              elevation="2"
+              rounded="lg"
+              :loading="post.loadingUpdate"
+            >
+              PUT 수정
+            </v-btn>
+            <v-btn
+              @click="deletePost(post.id)"
+              prepend-icon="mdi-trash-can"
+              class="btn-gradient-error"
+              size="small"
+              elevation="2"
+              rounded="lg"
+              :loading="post.loadingDelete"
+            >
+              DELETE 삭제
+            </v-btn>
           </div>
-          
-          <div v-if="posts.length === 0" style="text-align: center; padding: 40px; color: #999;">
-            버튼을 눌러서 게시글을 가져오세요
-          </div>
-        </div>
-        
-        <!-- 안내 -->
-        <div style="margin-top: 30px; padding: 15px; background: #fff3cd; border-radius: 8px; font-size: 14px;">
-          <strong>💡 사용된 API:</strong>
-          <ul style="margin: 10px 0; padding-left: 20px;">
-            <li>GET: 게시글 목록 조회</li>
-            <li>POST: 새 게시글 생성</li>
-            <li>PUT: 게시글 전체 수정</li>
-            <li>DELETE: 게시글 삭제</li>
-          </ul>
-          <small style="color: #666;">JSONPlaceholder는 테스트용 가짜 API라 실제 DB에는 저장 안돼요!</small>
         </div>
       </div>
-    </template>
+
+      <div
+        v-if="posts.length === 0"
+        class="text-center py-10 text-gray-400"
+      >
+        버튼을 눌러서 게시글을 가져오세요
+      </div>
+    </div>
+
+    <!-- 안내 -->
+    <div class="mt-8 p-4 bg-amber-50 rounded-lg text-sm">
+      <strong>💡 사용된 API:</strong>
+      <ul class="my-2.5 pl-5">
+        <li>GET: 게시글 목록 조회</li>
+        <li>POST: 새 게시글 생성</li>
+        <li>PUT: 게시글 전체 수정</li>
+        <li>DELETE: 게시글 삭제</li>
+      </ul>
+      <small class="text-gray-600">
+        JSONPlaceholder는 테스트용 가짜 API라 실제 DB에는 저장 안돼요!
+      </small>
+    </div>
+  </div>
+</template>

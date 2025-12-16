@@ -81,127 +81,155 @@
   }
   </script>
   
-  <template>
-    <div style="padding: 20px; max-width: 900px; margin: 0 auto; font-family: system-ui;">
-      <h1 style="color: #42b983;">🗄️ Oracle EMP 테이블 (로컬 JSON)</h1>
-      
-      <div v-if="error" style="background: #fee; padding: 10px; border-radius: 5px; color: red; margin-bottom: 15px;">
-        {{ error }}
-      </div>
-      
-      <!-- 조회 버튼들 -->
-      <div style="margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 8px;">
-        <button 
-          @click="getEmployees" 
+<template>
+  <div class="p-4 sm:p-6 max-w-full md:max-w-4xl mx-auto font-sans">
+    <h1 class="text-2xl md:text-3xl text-emerald-500">🗄️ Oracle EMP 테이블 (로컬 JSON)</h1>
+
+    <div
+      v-if="error"
+      class="bg-red-50 p-3 rounded-md text-red-600 mb-4"
+    >
+      {{ error }}
+    </div>
+
+    <!-- 조회 버튼들 -->
+    <div class="my-5 p-4 bg-gray-100 rounded-lg">
+      <div class="flex flex-wrap gap-3">
+        <v-btn
+          @click="getEmployees"
           :disabled="loading"
-          style="padding: 10px 20px; background: #42b983; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;"
+          :loading="loading"
+          prepend-icon="mdi-download"
+          class="btn-gradient-success"
+          size="large"
+          elevation="3"
+          rounded="lg"
         >
-          📥 전체 사원 조회
-        </button>
-        
-        <button 
-          @click="filterByJob('MANAGER')" 
+          전체 사원 조회
+        </v-btn>
+
+        <v-btn
+          @click="filterByJob('MANAGER')"
           :disabled="loading"
-          style="padding: 10px 20px; background: #FF9800; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px;"
+          :loading="loading"
+          prepend-icon="mdi-account-tie"
+          class="btn-gradient-info"
+          elevation="2"
+          rounded="lg"
         >
           MANAGER
-        </button>
-        
-        <button 
-          @click="filterByJob('SALESMAN')" 
+        </v-btn>
+
+        <v-btn
+          @click="filterByJob('SALESMAN')"
           :disabled="loading"
-          style="padding: 10px 20px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 5px;"
+          :loading="loading"
+          prepend-icon="mdi-briefcase"
+          class="btn-gradient-cyan"
+          elevation="2"
+          rounded="lg"
         >
           SALESMAN
-        </button>
-        
-        <button 
-          @click="filterByJob('CLERK')" 
+        </v-btn>
+
+        <v-btn
+          @click="filterByJob('CLERK')"
           :disabled="loading"
-          style="padding: 10px 20px; background: #9C27B0; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;"
+          :loading="loading"
+          prepend-icon="mdi-file-document"
+          class="btn-gradient-secondary"
+          elevation="2"
+          rounded="lg"
         >
           CLERK
-        </button>
-        
-        <span v-if="loading" style="margin-left: 10px; color: #42b983;">⏳ 로딩중...</span>
-      </div>
-      
-      <!-- 사원 목록 테이블 -->
-      <div style="margin-top: 20px;">
-        <h3>📋 사원 목록 ({{ employees.length }}명)</h3>
-        
-        <div v-if="employees.length > 0" style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <thead>
-              <tr style="background: #42b983; color: white;">
-                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">사원번호</th>
-                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">사원명</th>
-                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">직책</th>
-                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">상사</th>
-                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">입사일</th>
-                <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">급여</th>
-                <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">커미션</th>
-                <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">부서</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr 
-                v-for="emp in employees" 
-                :key="emp.EMPNO"
-                style="border-bottom: 1px solid #ddd;"
-              >
-                <td style="padding: 10px; border: 1px solid #ddd;">{{ emp.EMPNO }}</td>
-                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">{{ emp.ENAME }}</td>
-                <td style="padding: 10px; border: 1px solid #ddd;">
-                  <span :style="{
-                    padding: '4px 8px',
-                    borderRadius: '3px',
-                    fontSize: '12px',
-                    background: emp.JOB === 'MANAGER' ? '#FFE082' : emp.JOB === 'PRESIDENT' ? '#EF9A9A' : emp.JOB === 'ANALYST' ? '#90CAF9' : '#C5E1A5',
-                    color: '#333'
-                  }">
-                    {{ emp.JOB }}
-                  </span>
-                </td>
-                <td style="padding: 10px; border: 1px solid #ddd;">{{ emp.MGR || '-' }}</td>
-                <td style="padding: 10px; border: 1px solid #ddd;">{{ emp.HIREDATE }}</td>
-                <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">
-                  ${{ formatSalary(emp.SAL) }}
-                </td>
-                <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">
-                  {{ emp.COMM !== null ? '$' + formatSalary(emp.COMM) : '-' }}
-                </td>
-                <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">{{ emp.DEPTNO }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <div v-else style="text-align: center; padding: 40px; color: #999;">
-          버튼을 눌러서 사원 정보를 조회하세요
-        </div>
-      </div>
-      
-      <!-- 통계 정보 -->
-      <div v-if="employees.length > 0" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px;">
-        <h4 style="margin-top: 0;">📊 통계</h4>
-        <ul style="margin: 0; padding-left: 20px;">
-          <li>총 사원 수: {{ employees.length }}명</li>
-          <li>평균 급여: ${{ formatSalary(Math.round(employees.reduce((sum, emp) => sum + emp.SAL, 0) / employees.length)) }}</li>
-          <li>최고 급여: ${{ formatSalary(Math.max(...employees.map(e => e.SAL))) }}</li>
-          <li>최저 급여: ${{ formatSalary(Math.min(...employees.map(e => e.SAL))) }}</li>
-        </ul>
-      </div>
-      
-      <!-- 안내 -->
-      <div style="margin-top: 30px; padding: 15px; background: #e3f2fd; border-radius: 8px; font-size: 14px;">
-        <strong>💡 특징:</strong>
-        <ul style="margin: 10px 0; padding-left: 20px;">
-          <li>인터넷 연결 없이 로컬 JSON 데이터 사용</li>
-          <li>fetch API 방식 그대로 유지 (mockFetch)</li>
-          <li>오라클 EMP 테이블 실제 데이터 포함</li>
-          <li>300ms 딜레이로 실제 네트워크 효과</li>
-        </ul>
+        </v-btn>
       </div>
     </div>
-  </template>
+
+    <!-- 사원 목록 테이블 -->
+    <div class="mt-5">
+      <h3 class="text-lg md:text-xl mb-3">📋 사원 목록 ({{ employees.length }}명)</h3>
+
+      <div v-if="employees.length > 0" class="overflow-x-auto">
+        <table class="w-full border-collapse bg-white shadow-md min-w-[800px]">
+          <thead>
+            <tr class="bg-emerald-500 text-white">
+              <th class="p-3 text-left border border-gray-300">사원번호</th>
+              <th class="p-3 text-left border border-gray-300">사원명</th>
+              <th class="p-3 text-left border border-gray-300">직책</th>
+              <th class="p-3 text-left border border-gray-300">상사</th>
+              <th class="p-3 text-left border border-gray-300">입사일</th>
+              <th class="p-3 text-right border border-gray-300">급여</th>
+              <th class="p-3 text-right border border-gray-300">커미션</th>
+              <th class="p-3 text-center border border-gray-300">부서</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="emp in employees"
+              :key="emp.EMPNO"
+              class="border-b border-gray-300 hover:bg-gray-50"
+            >
+              <td class="p-2.5 border border-gray-300 text-sm">{{ emp.EMPNO }}</td>
+              <td class="p-2.5 border border-gray-300 font-bold text-sm">{{ emp.ENAME }}</td>
+              <td class="p-2.5 border border-gray-300">
+                <span
+                  class="px-2 py-1 rounded text-xs text-gray-800"
+                  :class="{
+                    'bg-amber-200': emp.JOB === 'MANAGER',
+                    'bg-red-200': emp.JOB === 'PRESIDENT',
+                    'bg-blue-200': emp.JOB === 'ANALYST',
+                    'bg-green-200': !['MANAGER', 'PRESIDENT', 'ANALYST'].includes(emp.JOB)
+                  }"
+                >
+                  {{ emp.JOB }}
+                </span>
+              </td>
+              <td class="p-2.5 border border-gray-300 text-sm">{{ emp.MGR || '-' }}</td>
+              <td class="p-2.5 border border-gray-300 text-sm">{{ emp.HIREDATE }}</td>
+              <td class="p-2.5 border border-gray-300 text-right font-bold text-sm">
+                ${{ formatSalary(emp.SAL) }}
+              </td>
+              <td class="p-2.5 border border-gray-300 text-right text-sm">
+                {{ emp.COMM !== null ? '$' + formatSalary(emp.COMM) : '-' }}
+              </td>
+              <td class="p-2.5 border border-gray-300 text-center text-sm">{{ emp.DEPTNO }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        v-else
+        class="text-center py-10 text-gray-400"
+      >
+        버튼을 눌러서 사원 정보를 조회하세요
+      </div>
+    </div>
+
+    <!-- 통계 정보 -->
+    <div
+      v-if="employees.length > 0"
+      class="mt-5 p-4 bg-amber-50 rounded-lg"
+    >
+      <h4 class="mt-0 mb-2">📊 통계</h4>
+      <ul class="m-0 pl-5 text-sm">
+        <li>총 사원 수: {{ employees.length }}명</li>
+        <li>평균 급여: ${{ formatSalary(Math.round(employees.reduce((sum, emp) => sum + emp.SAL, 0) / employees.length)) }}</li>
+        <li>최고 급여: ${{ formatSalary(Math.max(...employees.map(e => e.SAL))) }}</li>
+        <li>최저 급여: ${{ formatSalary(Math.min(...employees.map(e => e.SAL))) }}</li>
+      </ul>
+    </div>
+
+    <!-- 안내 -->
+    <div class="mt-8 p-4 bg-blue-50 rounded-lg text-sm">
+      <strong>💡 특징:</strong>
+      <ul class="my-2.5 pl-5">
+        <li>인터넷 연결 없이 로컬 JSON 데이터 사용</li>
+        <li>fetch API 방식 그대로 유지 (mockFetch)</li>
+        <li>오라클 EMP 테이블 실제 데이터 포함</li>
+        <li>300ms 딜레이로 실제 네트워크 효과</li>
+      </ul>
+    </div>
+  </div>
+</template>

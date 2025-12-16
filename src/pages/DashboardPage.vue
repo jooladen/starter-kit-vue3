@@ -1,22 +1,24 @@
 <template>
-    <div class="space-y-6">
-    <h1 class="text-2xl font-semibold">대시보드</h1>
-    
-    
-    <div class="bg-white rounded-2xl shadow p-4">
-    <v-data-table
-    :headers="headers"
-    :items="items"
-    >
-    <template #item.status="{ item }">
-    <v-chip :color="item.status === 'ON' ? 'green' : 'grey'" size="small">
-    {{ item.status }}
-    </v-chip>
-    </template>
-    </v-data-table>
+  <div class="space-y-6">
+    <h1 class="text-xl md:text-2xl font-semibold">대시보드</h1>
+
+    <div class="bg-white rounded-2xl shadow p-2 md:p-4">
+      <div class="overflow-x-auto">
+        <v-data-table
+          :headers="headers"
+          :items="items"
+          class="min-w-[600px]"
+        >
+          <template #item.status="{ item }">
+            <v-chip :color="item.status === 'ON' ? 'green' : 'grey'" size="small">
+              {{ item.status }}
+            </v-chip>
+          </template>
+        </v-data-table>
+      </div>
     </div>
-    </div>
-    </template>
+  </div>
+</template>
     
     
     <script setup>
