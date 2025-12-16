@@ -22,7 +22,7 @@
             density="compact"
           />
           <div class="flex items-end">
-            <v-btn color="primary" block>검색</v-btn>
+            <v-btn @click="fire" color="primary" block>검색</v-btn>
           </div>
         </div>
       </div>
@@ -59,6 +59,15 @@
   </template>
   
   <script setup>
+import confetti from "canvas-confetti"
+function fire(){
+    //confetti()
+    confetti({
+    particleCount: 150,
+    spread: 80,
+    origin: { y: 0.6 },
+  })
+}
   const headers = [
     { text: 'ID', value: 'id' },
     { text: '이름', value: 'name' },
